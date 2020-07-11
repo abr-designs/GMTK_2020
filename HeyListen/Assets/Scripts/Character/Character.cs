@@ -83,6 +83,8 @@ public class Character : MonoBehaviour, IHealth
 
         StartCoroutine(DegradeDecisionWeightsCoroutine());
         StartCoroutine(TakeAKneeCoroutine());
+        
+        CommandLine.SubmitCommand("OS","sys", "Booting OS...");
     }
 
     private void Update()
@@ -118,6 +120,7 @@ public class Character : MonoBehaviour, IHealth
             ReduceOpinionWeight(_currentCommand, offset);
             
             ForceCommand(CMD.STOP);
+            CommandLine.SubmitCommand("OS","msg", "OW!");
         }
         else if (amount > 0f)
         {
@@ -125,6 +128,7 @@ public class Character : MonoBehaviour, IHealth
             AdjustLogicLevel(offset);
 
             AddOpinionWeight(_currentCommand, offset);
+            CommandLine.SubmitCommand("OS","msg", "msg I feel way better!");
         }
     }
     
@@ -179,7 +183,7 @@ public class Character : MonoBehaviour, IHealth
 
     private void ForceCommand(CMD command)
     {
-        PerformCommand(command);
+        PerformCommand(command, false);
     }
 
     
@@ -205,6 +209,7 @@ public class Character : MonoBehaviour, IHealth
     
         chooseTimer = 0f;
 
+        CommandLine.SubmitCommand("OS","msg", "I can't wait, I should keep moving");
         PerformCommand(WeighOptions());
     }
 
@@ -213,7 +218,7 @@ public class Character : MonoBehaviour, IHealth
         if (IgnoreSuggestions())
         {
             Debug.Log("Ignored");
-            
+            CommandLine.SubmitCommand("OS","err", "CMD IGNORED");
             return;
         }
 
@@ -268,11 +273,12 @@ public class Character : MonoBehaviour, IHealth
         return role > logic;
     }
     
-    private void PerformCommand(CMD command)
+    private void PerformCommand(CMD command, bool displayMsg = true)
     {
         _currentCommand = command;
         
-        Debug.Log($"Performing Command: {command}");
+        //Debug.Log($"Performing Command: {command}");
+        
         waitingForCommand = false;
         chooseTimer = 0f;
         
@@ -284,15 +290,20 @@ public class Character : MonoBehaviour, IHealth
             case CMD.DOWN:
                 _targetPosition = rigidbody.position + command.ToVector2();
                 moving = true;
+                CommandLine.SubmitCommand("OS","msg", $"I think I'll go {command}");
                 break;
             case CMD.STOP:
                 //TODO I will want to stop at the nearest grid position
                 _targetPosition = rigidbody.position;
                 waitingForCommand = true;
+                if(displayMsg)
+                    CommandLine.SubmitCommand("OS","msg", $"I should {command}");
                 //suggestions.ResetDecisions();
                 break;
             case CMD.GO:
                 PerformCommand(WeighOptions());
+                if(displayMsg)
+                    CommandLine.SubmitCommand("OS","msg", $"I should {command}");
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(command), command, null);
