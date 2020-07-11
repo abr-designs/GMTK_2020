@@ -22,4 +22,25 @@ public static class CMDExtensions
                 throw new ArgumentOutOfRangeException(nameof(command), command, null);
         }
     }
+    
+    public static CMD Reflect(this CMD command)
+    {
+        switch (command)
+        {
+            case CMD.LEFT:
+                return CMD.RIGHT;
+            case CMD.RIGHT:
+                return CMD.LEFT;
+            case CMD.UP:
+                return CMD.DOWN;
+            case CMD.DOWN:
+                return CMD.UP;
+            case CMD.STOP:
+                return CMD.GO;
+            case CMD.GO:
+                return CMD.STOP;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(command), command, null);
+        }
+    }
 }
